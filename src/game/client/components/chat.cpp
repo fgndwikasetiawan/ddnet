@@ -144,6 +144,20 @@ void CChat::ConEcho(IConsole::IResult *pResult, void *pUserData)
 	((CChat *)pUserData)->Echo(pResult->GetString(0));
 }
 
+void CChat::ConCountDown(IConsole::IResult *pResult, void *pUserData)
+{
+	// get angkanya
+	int theInt = pResult->GetInteger(0);
+	IClient *Client = ((CChat *)pUserData)->m_pClient->Client();
+
+	int serverTimePresumably = Client->GameTick(g_Config.m_ClDummy) / Client->GameTickSpeed();
+	
+	char buf[30];
+	itoa(serverTimePresumably, buf, 10);
+
+	((CChat *)pUserData)->Echo(buf);
+}
+
 void CChat::ConchainChatOld(IConsole::IResult *pResult, void *pUserData, IConsole::FCommandCallback pfnCallback, void *pCallbackUserData)
 {
 	pfnCallback(pResult, pCallbackUserData);
@@ -161,6 +175,7 @@ void CChat::OnConsoleInit()
 	Console()->Register("say_team", "r[message]", CFGFLAG_CLIENT, ConSayTeam, this, "Say in team chat");
 	Console()->Register("chat", "s['team'|'all'] ?r[message]", CFGFLAG_CLIENT, ConChat, this, "Enable chat with all/team mode");
 	Console()->Register("+show_chat", "", CFGFLAG_CLIENT, ConShowChat, this, "Show chat");
+	Console()->Register("cd", "i[duration]", CFGFLAG_CLIENT, ConCountDown, this, "Start a countdown");
 	Console()->Register("echo", "r[message]", CFGFLAG_CLIENT, ConEcho, this, "Echo the text in chat window");
 	Console()->Chain("cl_chat_old", ConchainChatOld, this);
 }
